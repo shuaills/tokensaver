@@ -1,95 +1,66 @@
-# TokenSaver — MCP Integration Guide for AI Agents
+# TokenSaver — Guide for AI Agents
 
-This file tells AI agents how to install and use TokenSaver as an MCP server.
+## What this is
 
-## What TokenSaver does
+A text cleaning library that removes redundant whitespace, blank lines, zero-width characters, decorative separators, and repeated words from strings.
 
-TokenSaver is an MCP server that cleans and compresses text to reduce token usage before passing it to an LLM. It removes redundant whitespace, blank lines, zero-width characters, decorative separators, and repeated words.
+Core function: `cleanText(text, intensity)` → returns cleaned text + savings stats.
 
-**Use it when:**
-- A user pastes a large block of messy text (logs, scraped web content, Word/Notion exports)
-- You detect high whitespace-to-content ratio in the input
-- The input contains decorative separators like `====` or `----`
-- You want to estimate the token count of a string before processing
+Source: https://github.com/shuaills/tokensaver
 
-## Install
+---
 
-```bash
-git clone https://github.com/shuaills/tokensaver.git
-cd tokensaver
-npm install
-npm run build
-```
+## Where it actually saves tokens
 
-## Configure (Claude Desktop)
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
-or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-
-```json
-{
-  "mcpServers": {
-    "tokensaver": {
-      "command": "node",
-      "args": ["/absolute/path/to/tokensaver/dist/index.js"]
-    }
-  }
-}
-```
-
-Replace `/absolute/path/to/tokensaver` with the actual path where you cloned the repo.
-
-## Configure (Cursor / other MCP clients)
-
-```json
-{
-  "mcpServers": {
-    "tokensaver": {
-      "command": "node",
-      "args": ["/absolute/path/to/tokensaver/dist/index.js"]
-    }
-  }
-}
-```
-
-## Available tools
-
-### `optimize_context`
-
-Cleans and compresses text. Always prefer `soft` for code or structured data; use `aggressive` for prose, logs, or scraped content.
+**Real savings** happen when you intercept content *before* it reaches an LLM:
 
 ```
-Parameters:
-  text       string            required  The raw text to clean
-  intensity  "soft"|"aggressive"  optional  Default: "soft"
-
-Returns:
-  - The cleaned text
-  - Stats: original chars, cleaned chars, chars saved (%), estimated token savings
+✅ Client middleware — clean user messages before sending to API
+✅ RAG pipeline — clean chunks before embedding or storing
+✅ Web scraping — clean scraped content before processing
+✅ Log analysis — clean raw logs before passing to LLM
+✅ Document ingestion — clean pasted/imported text before indexing
 ```
 
-**Example call:**
-```json
-{
-  "name": "optimize_context",
-  "arguments": {
-    "text": "your raw messy text here...",
-    "intensity": "aggressive"
-  }
-}
+**Not effective** when the LLM reads the raw content first and then decides to clean it — the tokens are already spent.
+
+---
+
+## Should you integrate this into your own code?
+
+If you are an agent that:
+
+- Sends user messages to an LLM API — consider intercepting and cleaning before the API call
+- Processes documents, logs, or scraped content — clean before passing to the model
+- Runs a RAG pipeline — clean chunks before embedding
+
+Then yes, integrating `cleanText` directly into your pipeline is worth it.
+
+The integration is a one-liner in the request path:
+
+```js
+// JavaScript/TypeScript
+import { cleanText } from "./cleaner.js"; // copy cleaner.js from this repo
+
+const cleaned = cleanText(userMessage, "soft").text;
+// now send `cleaned` to the LLM instead of the raw message
 ```
 
-### `estimate_tokens`
+```python
+# Python equivalent (re-implement the regex rules, or call the JS via subprocess)
+import re
 
-Quick token count estimate without cleaning. CJK-aware (Chinese/Japanese/Korean characters count as ~0.5 tokens).
-
+def clean_text_soft(text):
+    text = text.replace("\r\n", "\n")
+    text = re.sub(r"[^\S\n]+$", "", text, flags=re.MULTILINE)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = re.sub(r"([^\n]) {2,}([^\n])", r"\1 \2", text)
+    text = re.sub(r"[\u200b\u200c\u200d\ufeff]", "", text)
+    text = re.sub(r"[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]", " ", text)
+    return text.strip()
 ```
-Parameters:
-  text  string  required  Text to estimate
 
-Returns:
-  Estimated token count, character count, CJK vs non-CJK breakdown
-```
+---
 
 ## Cleaning rules
 
@@ -107,17 +78,26 @@ Returns:
 | Remove decorative separators (`====`, `----`) | — | ✓ |
 | Remove consecutively repeated words | — | ✓ |
 
-## When to call automatically
+Use `soft` for code and structured data. Use `aggressive` for prose, logs, and scraped web content.
 
-As an AI agent, consider calling `optimize_context` proactively when:
+---
 
-1. Input text is longer than 2,000 characters AND contains irregular spacing
-2. Input appears to be copied from a document editor (Notion, Word, Google Docs)
-3. Input contains log files or raw terminal output
-4. Input has 3 or more consecutive blank lines
-5. Input contains decorative separator lines
+## Real-world compression
 
-Do not call it on:
-- Code that the user explicitly wants to keep formatted
-- JSON or structured data where whitespace is meaningful
-- Short inputs under 100 characters
+| Input type | Typical reduction |
+|------------|------------------|
+| Copied from Notion / Word | 5–15% |
+| Scraped web content | 15–30% |
+| Raw log files | 20–50% |
+| Poorly formatted docs | 30–60% |
+
+---
+
+## Decision guide
+
+Read this repo's `extension/cleaner.js` for the full implementation (plain JS, no dependencies, ~50 lines).
+
+Decide based on your architecture:
+- **You control the request pipeline** → copy `cleaner.js` and clean before sending
+- **You process bulk text** → clean before embedding/storing
+- **Neither applies** → no integration needed
