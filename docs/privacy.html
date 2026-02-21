@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — TokenSaver</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 680px;
+      margin: 60px auto;
+      padding: 0 24px;
+      color: #1a1a1a;
+      line-height: 1.7;
+    }
+    h1 { font-size: 28px; margin-bottom: 4px; }
+    h2 { font-size: 17px; margin-top: 36px; }
+    .meta { color: #666; font-size: 14px; margin-bottom: 40px; }
+    a  { color: #16a34a; }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 6px; }
+    .tl-dr {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 14px 18px;
+      border-radius: 4px;
+      margin-bottom: 32px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ TokenSaver — Privacy Policy</h1>
+  <p class="meta">Effective date: February 2026 · <a href="https://github.com/shuaills/tokensaver">github.com/shuaills/tokensaver</a></p>
+
+  <div class="tl-dr">
+    TL;DR: TokenSaver does not collect, transmit, or store any personal data. Everything happens locally in your browser.
+  </div>
+
+  <h2>What TokenSaver does</h2>
+  <p>
+    TokenSaver is a Chrome extension that intercepts paste events on LLM chat sites
+    (Claude, ChatGPT, Gemini, etc.) and removes redundant whitespace and formatting
+    noise from pasted text to reduce token usage. All text processing happens entirely
+    within your browser using JavaScript.
+  </p>
+
+  <h2>Data we collect</h2>
+  <p><strong>None.</strong> TokenSaver does not collect any personal information, browsing history, or content of any kind.</p>
+
+  <h2>Local storage only</h2>
+  <p>The extension stores two things locally on your device using the Chrome storage API:</p>
+  <ul>
+    <li><strong>Preferences</strong> — your chosen cleaning intensity (soft or aggressive) and enabled/disabled state, synced across your Chrome profile via <code>chrome.storage.sync</code>.</li>
+    <li><strong>Session stats</strong> — a running count of characters saved, shown in the extension popup, stored via <code>chrome.storage.local</code>.</li>
+  </ul>
+  <p>This data never leaves your device and is never transmitted to any server.</p>
+
+  <h2>No network requests</h2>
+  <p>
+    TokenSaver makes zero network requests. It has no backend, no analytics, no
+    crash reporting, and no telemetry of any kind. You can verify this by inspecting
+    the source code on <a href="https://github.com/shuaills/tokensaver">GitHub</a>.
+  </p>
+
+  <h2>Permissions explained</h2>
+  <ul>
+    <li><strong>storage</strong> — to save your preferences and local usage stats.</li>
+    <li><strong>Host permissions</strong> (claude.ai, chatgpt.com, etc.) — to inject the content script that intercepts paste events on supported sites. The extension only activates on these specific domains.</li>
+  </ul>
+
+  <h2>Third parties</h2>
+  <p>TokenSaver does not share data with any third party because it does not collect any data in the first place.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If this policy changes, the updated version will be posted at this URL with a new effective date.</p>
+
+  <h2>Contact</h2>
+  <p>Questions? Open an issue at <a href="https://github.com/shuaills/tokensaver/issues">github.com/shuaills/tokensaver/issues</a>.</p>
+</body>
+</html>
