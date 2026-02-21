@@ -47,17 +47,76 @@ const cleaned = cleanText(userMessage, "soft").text;
 ```
 
 ```python
-# Python equivalent (re-implement the regex rules, or call the JS via subprocess)
+# Python
 import re
 
-def clean_text_soft(text):
+def clean_text(text: str, aggressive: bool = False) -> str:
     text = text.replace("\r\n", "\n")
     text = re.sub(r"[^\S\n]+$", "", text, flags=re.MULTILINE)
     text = re.sub(r"\n{3,}", "\n\n", text)
     text = re.sub(r"([^\n]) {2,}([^\n])", r"\1 \2", text)
     text = re.sub(r"[\u200b\u200c\u200d\ufeff]", "", text)
     text = re.sub(r"[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]", " ", text)
+    if aggressive:
+        text = re.sub(r"[^\S\n]+", " ", text)
+        text = re.sub(r"\n\s*\n", "\n", text)
+        text = re.sub(r"([.!?,;])\1{2,}", r"\1\1\1", text)
+        text = re.sub(r"^[-=*_~#]{4,}\s*$", "", text, flags=re.MULTILINE)
     return text.strip()
+```
+
+```rust
+// Rust — add `regex = "1"` to Cargo.toml
+use regex::Regex;
+
+pub fn clean_text(input: &str, aggressive: bool) -> String {
+    let mut s = input.replace("\r\n", "\n");
+
+    // trailing whitespace per line
+    let re_trail = Regex::new(r"[^\S\n]+\n").unwrap();
+    s = re_trail.replace_all(&s, "\n").into_owned();
+
+    // 3+ blank lines → 1
+    let re_blank = Regex::new(r"\n{3,}").unwrap();
+    s = re_blank.replace_all(&s, "\n\n").into_owned();
+
+    // mid-line double spaces
+    let re_spaces = Regex::new(r"([^\n]) {2,}([^\n])").unwrap();
+    s = re_spaces.replace_all(&s, "$1 $2").into_owned();
+
+    // zero-width chars
+    s = s.replace('\u{200b}', "")
+         .replace('\u{200c}', "")
+         .replace('\u{200d}', "")
+         .replace('\u{feff}', "");
+
+    // fancy unicode spaces → regular space
+    s = s.chars().map(|c| match c {
+        '\u{00a0}' | '\u{1680}' | '\u{202f}' | '\u{205f}' | '\u{3000}'
+        | '\u{2000}'..='\u{200a}' => ' ',
+        c => c,
+    }).collect();
+
+    if aggressive {
+        // collapse all horizontal whitespace runs
+        let re_ws = Regex::new(r"[^\S\n]+").unwrap();
+        s = re_ws.replace_all(&s, " ").into_owned();
+
+        // remove all blank lines
+        let re_bl = Regex::new(r"\n\s*\n").unwrap();
+        s = re_bl.replace_all(&s, "\n").into_owned();
+
+        // repeated punctuation: "....." → "..."
+        let re_punct = Regex::new(r"([.!?,;])\1{2,}").unwrap();
+        s = re_punct.replace_all(&s, "$1$1$1").into_owned();
+
+        // decorative separator lines
+        let re_sep = Regex::new(r"(?m)^[-=*_~#]{4,}\s*$").unwrap();
+        s = re_sep.replace_all(&s, "").into_owned();
+    }
+
+    s.trim().to_owned()
+}
 ```
 
 ---
