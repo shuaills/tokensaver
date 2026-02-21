@@ -19,9 +19,9 @@ chrome.storage.sync.get({ enabled: true, intensity: "soft" }, ({ enabled, intens
   setIntensity(intensity);
 });
 
-// ---------- Load session stats ----------
+// ---------- Load stats ----------
 function loadStats() {
-  chrome.storage.session?.get({ totalSaved: 0 }, ({ totalSaved }) => {
+  chrome.storage.local.get({ totalSaved: 0 }, ({ totalSaved }) => {
     statChars.textContent = Number(totalSaved).toLocaleString();
     statTokens.textContent = "~" + Math.ceil(totalSaved / 4).toLocaleString();
   });
@@ -53,7 +53,7 @@ intensityBtns.forEach((btn) => {
 
 // ---------- Reset ----------
 resetBtn.addEventListener("click", () => {
-  chrome.storage.session?.set({ totalSaved: 0 });
+  chrome.storage.local.set({ totalSaved: 0 });
   statChars.textContent = "0";
   statTokens.textContent = "~0";
 });

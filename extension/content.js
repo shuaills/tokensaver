@@ -75,10 +75,9 @@ document.addEventListener(
     insertText(result.text);
     showToast(result);
 
-    chrome.storage.session &&
-      chrome.storage.session.get({ totalSaved: 0 }, (s) => {
-        chrome.storage.session.set({ totalSaved: (s.totalSaved || 0) + result.savedChars });
-      });
+    chrome.storage.local.get({ totalSaved: 0 }, (s) => {
+      chrome.storage.local.set({ totalSaved: (s.totalSaved || 0) + result.savedChars });
+    });
   },
   true
 );
