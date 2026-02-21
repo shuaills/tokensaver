@@ -1,0 +1,27 @@
+{
+  "name": "tokensaver",
+  "version": "1.0.0",
+  "description": "MCP server for cleaning and compressing LLM context to save tokens",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "tokensaver": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "keywords": ["mcp", "token", "llm", "context"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

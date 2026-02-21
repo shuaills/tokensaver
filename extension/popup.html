@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TokenSaver</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      background: #18181b;
+      color: #f4f4f5;
+      width: 280px;
+      padding: 0;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #27272a;
+    }
+    .header .logo { font-size: 22px; }
+    .header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+    .header p  { font-size: 11px; color: #71717a; margin-top: 1px; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid #27272a;
+    }
+    .toggle-row label { font-weight: 500; }
+    .toggle-row span  { font-size: 11px; color: #71717a; margin-top: 2px; display: block; }
+
+    /* Toggle switch */
+    .switch { position: relative; display: inline-block; width: 38px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0;
+      background: #3f3f46; border-radius: 22px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 16px; height: 16px;
+      left: 3px; bottom: 3px;
+      background: white; border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    input:checked + .slider { background: #22c55e; }
+    input:checked + .slider::before { transform: translateX(16px); }
+
+    .section { padding: 14px 16px; border-bottom: 1px solid #27272a; }
+    .section-label { font-size: 11px; font-weight: 500; color: #71717a; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+
+    .intensity-group { display: flex; gap: 8px; }
+    .intensity-btn {
+      flex: 1;
+      padding: 7px 0;
+      border-radius: 7px;
+      border: 1px solid #3f3f46;
+      background: #27272a;
+      color: #a1a1aa;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .intensity-btn:hover { border-color: #52525b; color: #f4f4f5; }
+    .intensity-btn.active { background: #22c55e22; border-color: #22c55e; color: #22c55e; }
+
+    .intensity-desc { font-size: 11px; color: #71717a; margin-top: 8px; min-height: 30px; line-height: 1.5; }
+
+    .stats { padding: 14px 16px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .stat-card {
+      background: #27272a;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .stat-card .val { font-size: 18px; font-weight: 700; color: #22c55e; }
+    .stat-card .lbl { font-size: 10px; color: #71717a; margin-top: 2px; }
+
+    .footer {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer a { font-size: 11px; color: #52525b; text-decoration: none; }
+    .footer a:hover { color: #a1a1aa; }
+    .reset-btn {
+      font-size: 11px; color: #52525b; background: none;
+      border: none; cursor: pointer; padding: 0;
+    }
+    .reset-btn:hover { color: #a1a1aa; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">⚡</div>
+    <div>
+      <h1>TokenSaver</h1>
+      <p>LLM context optimizer</p>
+    </div>
+  </div>
+
+  <div class="toggle-row">
+    <div>
+      <label for="toggle">Active on this site</label>
+      <span id="status-text">Intercepting paste events</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="toggle" checked />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Cleaning intensity</div>
+    <div class="intensity-group">
+      <button class="intensity-btn active" data-val="soft">Soft</button>
+      <button class="intensity-btn" data-val="aggressive">Aggressive</button>
+    </div>
+    <div class="intensity-desc" id="intensity-desc">
+      Safe whitespace normalization. Preserves code structure and indentation.
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="section-label">Session stats</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="val" id="stat-chars">0</div>
+        <div class="lbl">chars saved</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" id="stat-tokens">~0</div>
+        <div class="lbl">tokens saved</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://github.com/shuaills/tokensaver" target="_blank">GitHub ↗</a>
+    <button class="reset-btn" id="reset-btn">Reset stats</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

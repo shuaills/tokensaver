@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "TokenSaver",
+  "version": "1.0.0",
+  "description": "Automatically cleans pasted text to reduce LLM token usage. Works on Claude, ChatGPT, Gemini, and more.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://claude.ai/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://gemini.google.com/*",
+    "https://aistudio.google.com/*",
+    "https://poe.com/*",
+    "https://www.perplexity.ai/*",
+    "https://grok.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://claude.ai/*",
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*",
+        "https://aistudio.google.com/*",
+        "https://poe.com/*",
+        "https://www.perplexity.ai/*",
+        "https://grok.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "TokenSaver"
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  }
+}
