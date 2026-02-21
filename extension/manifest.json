@@ -3,7 +3,7 @@
   "name": "TokenSaver",
   "version": "1.0.0",
   "description": "Automatically cleans pasted text to reduce LLM token usage. Works on Claude, ChatGPT, Gemini, and more.",
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://claude.ai/*",
     "https://chatgpt.com/*",
